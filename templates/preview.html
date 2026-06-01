@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoltFlow – Smart EV Charging Platform | Preview</title>
+  <meta name="description" content="VoltFlow is a next-generation EV charging station finder and booking platform. Locate, book, and charge your electric vehicle with ease." />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ═══════════════════════════════════════════════════════
+       VOLTFLOW PREVIEW PAGE — COMPLETE STYLES
+       ═══════════════════════════════════════════════════════ */
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-deep: #050810;
+      --bg-primary: #0a0e1a;
+      --bg-card: rgba(15, 20, 40, 0.7);
+      --bg-card-hover: rgba(20, 28, 55, 0.8);
+      --glass: rgba(255,255,255,0.03);
+      --glass-border: rgba(255,255,255,0.06);
+      --neon: #00ff88;
+      --neon-dim: rgba(0,255,136,0.15);
+      --cyan: #00d4ff;
+      --cyan-dim: rgba(0,212,255,0.15);
+      --purple: #a855f7;
+      --purple-dim: rgba(168,85,247,0.15);
+      --orange: #ff6b35;
+      --text-primary: #e8ecf4;
+      --text-secondary: rgba(232,236,244,0.6);
+      --text-muted: rgba(232,236,244,0.35);
+      --border: rgba(255,255,255,0.06);
+      --font: 'Outfit', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-lg: 24px;
+      --shadow-glow: 0 0 40px rgba(0,255,136,0.08);
+      --shadow-lg: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ── PRELOADER ─────────────────────────────────── */
+    #preloader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg-deep);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 24px;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .preloader-logo {
+      font-size: 3rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--neon), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: pulse-glow 1.5s ease-in-out infinite;
+    }
+    .preloader-bar {
+      width: 200px; height: 3px; border-radius: 3px;
+      background: rgba(255,255,255,0.05); overflow: hidden;
+    }
+    .preloader-bar-fill {
+      width: 0; height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--neon), var(--cyan));
+      animation: load-bar 1.8s ease-in-out forwards;
+    }
+    @keyframes load-bar { 0%{width:0} 50%{width:70%} 100%{width:100%} }
+    @keyframes pulse-glow {
+      0%,100% { filter: drop-shadow(0 0 10px rgba(0,255,136,0.3)); }
+      50% { filter: drop-shadow(0 0 30px rgba(0,255,136,0.6)); }
+    }
+
+    /* ── BACKGROUND EFFECTS ───────────────────────── */
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0,255,136,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,136,0.015) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .bg-orb {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      pointer-events: none; z-index: 0;
+    }
+    .bg-orb-1 {
+      width: 600px; height: 600px; top: -200px; right: -100px;
+      background: radial-gradient(circle, rgba(0,255,136,0.06), transparent 70%);
+      animation: float-orb 20s ease-in-out infinite;
+    }
+    .bg-orb-2 {
+      width: 500px; height: 500px; bottom: -150px; left: -100px;
+      background: radial-gradient(circle, rgba(0,212,255,0.05), transparent 70%);
+      animation: float-orb 25s ease-in-out infinite reverse;
+    }
+    .bg-orb-3 {
+      width: 400px; height: 400px; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(168,85,247,0.04), transparent 70%);
+      animation: float-orb 18s ease-in-out infinite 5s;
+    }
+    @keyframes float-orb {
+      0%,100% { transform: translate(0, 0); }
+      25% { transform: translate(40px, -30px); }
+      50% { transform: translate(-20px, 40px); }
+      75% { transform: translate(30px, 20px); }
+    }
+
+    /* ── NAVBAR ────────────────────────────────────── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 16px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,16,0.6);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      transition: all 0.3s ease;
+    }
+    .navbar.scrolled {
+      padding: 10px 40px;
+      background: rgba(5,8,16,0.85);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.5rem; font-weight: 800;
+      text-decoration: none; color: var(--text-primary);
+    }
+    .nav-brand i {
+      color: var(--neon);
+      filter: drop-shadow(0 0 8px rgba(0,255,136,0.4));
+      font-size: 1.3rem;
+    }
+    .nav-brand span {
+      background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 32px; list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-secondary); text-decoration: none;
+      font-weight: 500; font-size: 0.9rem;
+      transition: color 0.3s ease; position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 2px; background: var(--neon);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover { color: var(--neon); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-cta {
+      padding: 10px 24px; border-radius: 50px; border: none;
+      background: linear-gradient(135deg, var(--neon), #00cc6a);
+      color: #000; font-weight: 700; font-size: 0.9rem;
+      cursor: pointer; transition: all 0.3s ease;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .nav-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,255,136,0.3);
+    }
+    .nav-hamburger {
+      display: none; background: none; border: none; color: var(--text-primary);
+      font-size: 1.5rem; cursor: pointer;
+    }
+
+    /* ── HERO ──────────────────────────────────────── */
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 120px 40px 80px;
+      overflow: hidden;
+    }
+    .hero-content {
+      max-width: 1280px; margin: 0 auto; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+    }
+    .hero-text { z-index: 2; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 18px; border-radius: 50px;
+      background: var(--neon-dim); border: 1px solid rgba(0,255,136,0.2);
+      color: var(--neon); font-size: 0.8rem; font-weight: 600;
+      margin-bottom: 24px;
+      animation: fade-in-up 0.8s ease both;
+    }
+    .hero-badge i { font-size: 0.7rem; }
+    .hero-title {
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 900; line-height: 1.1; letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      animation: fade-in-up 0.8s ease 0.1s both;
+    }
+    .hero-title .gradient {
+      background: linear-gradient(135deg, var(--neon), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+      font-size: 1.15rem; color: var(--text-secondary);
+      max-width: 480px; line-height: 1.7; margin-bottom: 36px;
+      animation: fade-in-up 0.8s ease 0.2s both;
+    }
+    .hero-actions {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      animation: fade-in-up 0.8s ease 0.3s both;
+    }
+    .btn-hero-primary {
+      padding: 16px 36px; border-radius: 14px; border: none;
+      background: linear-gradient(135deg, var(--neon), #00cc6a);
+      color: #000; font-weight: 700; font-size: 1rem;
+      cursor: pointer; transition: all 0.3s ease;
+      display: inline-flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .btn-hero-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,255,136,0.3);
+    }
+    .btn-hero-secondary {
+      padding: 16px 36px; border-radius: 14px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass); color: var(--text-primary);
+      font-weight: 600; font-size: 1rem;
+      cursor: pointer; transition: all 0.3s ease;
+      display: inline-flex; align-items: center; gap: 10px;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+    }
+    .btn-hero-secondary:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-3px);
+    }
+    .hero-stats {
+      display: flex; gap: 40px; margin-top: 48px;
+      animation: fade-in-up 0.8s ease 0.4s both;
+    }
+    .hero-stat h3 {
+      font-size: 2rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--neon), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-stat p {
+      font-size: 0.85rem; color: var(--text-muted);
+      font-weight: 500; margin-top: 2px;
+    }
+
+    /* Hero Visual */
+    .hero-visual {
+      position: relative; z-index: 2;
+      display: flex; justify-content: center; align-items: center;
+      animation: fade-in-up 1s ease 0.3s both;
+    }
+    .hero-phone {
+      position: relative; width: 300px;
+      background: linear-gradient(145deg, rgba(20,25,50,0.9), rgba(10,14,26,0.95));
+      border-radius: 36px; padding: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow:
+        0 40px 100px rgba(0,0,0,0.6),
+        0 0 60px rgba(0,255,136,0.05),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+      transform: perspective(1000px) rotateY(-8deg) rotateX(4deg);
+      transition: transform 0.6s ease;
+    }
+    .hero-phone:hover {
+      transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+    }
+    .phone-notch {
+      width: 120px; height: 24px; margin: 0 auto 8px;
+      background: #000; border-radius: 0 0 16px 16px;
+    }
+    .phone-screen {
+      border-radius: 24px; overflow: hidden;
+      aspect-ratio: 9/19.5; position: relative;
+    }
+    .phone-screen img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .hero-floating-card {
+      position: absolute; padding: 14px 20px;
+      background: rgba(15,20,40,0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      animation: float-card 4s ease-in-out infinite;
+    }
+    .float-card-1 {
+      top: 15%; left: -60px;
+      animation-delay: 0s;
+    }
+    .float-card-2 {
+      bottom: 20%; right: -70px;
+      animation-delay: 2s;
+    }
+    .float-card-1 .fc-icon { color: var(--neon); }
+    .float-card-2 .fc-icon { color: var(--cyan); }
+    .fc-row { display: flex; align-items: center; gap: 10px; }
+    .fc-icon { font-size: 1.3rem; }
+    .fc-text { font-size: 0.8rem; font-weight: 600; }
+    .fc-sub { font-size: 0.7rem; color: var(--text-muted); }
+    @keyframes float-card {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    /* ── SECTIONS COMMON ──────────────────────────── */
+    .section {
+      position: relative; z-index: 1;
+      padding: 100px 40px;
+    }
+    .section-container {
+      max-width: 1280px; margin: 0 auto;
+    }
+    .section-header {
+      text-align: center; margin-bottom: 64px;
+    }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 50px;
+      background: var(--neon-dim); border: 1px solid rgba(0,255,136,0.15);
+      color: var(--neon); font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800; letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .section-subtitle {
+      font-size: 1.05rem; color: var(--text-secondary);
+      max-width: 600px; margin: 0 auto;
+    }
+
+    /* ── FEATURES ──────────────────────────────────── */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .feature-card {
+      position: relative; padding: 36px 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      transition: all 0.4s ease; overflow: hidden;
+      cursor: default;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: linear-gradient(90deg, transparent, var(--neon), transparent);
+      opacity: 0; transition: opacity 0.4s ease;
+    }
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(0,255,136,0.15);
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-glow);
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 56px; height: 56px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; margin-bottom: 20px;
+    }
+    .feature-icon.green { background: var(--neon-dim); color: var(--neon); }
+    .feature-icon.cyan { background: var(--cyan-dim); color: var(--cyan); }
+    .feature-icon.purple { background: var(--purple-dim); color: var(--purple); }
+    .feature-icon.orange { background: rgba(255,107,53,0.15); color: var(--orange); }
+    .feature-card h3 {
+      font-size: 1.15rem; font-weight: 700; margin-bottom: 10px;
+    }
+    .feature-card p {
+      font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;
+    }
+
+    /* ── APP DEMO / SHOWCASE ──────────────────────── */
+    .demo-section { background: var(--bg-primary); }
+    .demo-tabs {
+      display: flex; justify-content: center; gap: 8px;
+      margin-bottom: 48px; flex-wrap: wrap;
+    }
+    .demo-tab {
+      padding: 12px 28px; border-radius: 50px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-secondary);
+      font-weight: 600; font-size: 0.9rem; cursor: pointer;
+      transition: all 0.3s ease; font-family: var(--font);
+    }
+    .demo-tab.active {
+      background: linear-gradient(135deg, var(--neon), #00cc6a);
+      color: #000; border-color: var(--neon);
+    }
+    .demo-tab:hover:not(.active) {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.12);
+    }
+    .demo-content {
+      position: relative;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+    }
+    .demo-panel { display: none; }
+    .demo-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .demo-info h3 {
+      font-size: 1.8rem; font-weight: 800; margin-bottom: 16px;
+    }
+    .demo-info p {
+      color: var(--text-secondary); line-height: 1.7; margin-bottom: 24px;
+    }
+    .demo-features-list {
+      list-style: none; display: flex; flex-direction: column; gap: 14px;
+    }
+    .demo-features-list li {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 0.95rem; color: var(--text-secondary);
+    }
+    .demo-features-list li i {
+      color: var(--neon); font-size: 0.8rem;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--neon-dim);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .demo-image-wrap {
+      display: flex; justify-content: center;
+    }
+    .demo-image {
+      width: 100%; max-width: 500px; border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      transition: transform 0.5s ease;
+    }
+    .demo-image:hover {
+      transform: scale(1.03);
+    }
+
+    /* ── TECH STACK ────────────────────────────────── */
+    .tech-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    }
+    .tech-card {
+      padding: 28px 24px; text-align: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all 0.3s ease;
+    }
+    .tech-card:hover {
+      border-color: rgba(0,255,136,0.15);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-glow);
+    }
+    .tech-card i {
+      font-size: 2.5rem; margin-bottom: 16px;
+      display: block;
+    }
+    .tech-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .tech-card p { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* ── ARCHITECTURE ─────────────────────────────── */
+    .arch-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .arch-card {
+      padding: 32px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+      position: relative; overflow: hidden;
+    }
+    .arch-card::after {
+      content: ''; position: absolute; top: 0; right: 0;
+      width: 100px; height: 100px; border-radius: 50%;
+      filter: blur(60px); pointer-events: none;
+    }
+    .arch-card:nth-child(1)::after { background: rgba(0,255,136,0.08); }
+    .arch-card:nth-child(2)::after { background: rgba(0,212,255,0.08); }
+    .arch-card:nth-child(3)::after { background: rgba(168,85,247,0.08); }
+    .arch-num {
+      font-size: 3rem; font-weight: 900;
+      background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      position: absolute; top: 16px; right: 24px;
+    }
+    .arch-card h3 {
+      font-size: 1.2rem; font-weight: 700; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .arch-card h3 i { color: var(--neon); }
+    .arch-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; }
+    .arch-card ul {
+      list-style: none; margin-top: 14px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .arch-card ul li {
+      font-size: 0.85rem; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .arch-card ul li::before {
+      content: '▸'; color: var(--neon); font-size: 0.7rem;
+    }
+
+    /* ── LIVE STATS ────────────────────────────────── */
+    .stats-section {
+      background: linear-gradient(180deg, var(--bg-primary), var(--bg-deep));
+    }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+    }
+    .stat-card {
+      text-align: center; padding: 40px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg); position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; inset: -1px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(0,255,136,0.1), transparent, rgba(0,212,255,0.1));
+      z-index: 0; opacity: 0; transition: opacity 0.4s ease;
+    }
+    .stat-card:hover::before { opacity: 1; }
+    .stat-card > * { position: relative; z-index: 1; }
+    .stat-number {
+      font-size: 2.8rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--neon), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+    .stat-label { font-size: 0.9rem; color: var(--text-secondary); font-weight: 500; }
+    .stat-icon {
+      font-size: 1.5rem; color: var(--neon); margin-bottom: 16px;
+      opacity: 0.6;
+    }
+
+    /* ── HOW IT WORKS ─────────────────────────────── */
+    .steps-timeline {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      position: relative; padding: 20px 0;
+    }
+    .steps-timeline::before {
+      content: ''; position: absolute; top: 40px; left: 60px; right: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--neon), var(--cyan), var(--purple));
+      opacity: 0.3;
+    }
+    .step-item {
+      text-align: center; flex: 1; max-width: 220px; position: relative;
+    }
+    .step-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1.2rem; margin: 0 auto 20px;
+      background: var(--bg-card);
+      border: 2px solid var(--neon);
+      color: var(--neon);
+      position: relative; z-index: 2;
+    }
+    .step-item h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .step-item p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* ── PROJECT DETAILS ──────────────────────────── */
+    .details-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+    }
+    .detail-block {
+      padding: 36px; background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+    .detail-block h3 {
+      font-size: 1.3rem; font-weight: 700; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .detail-block h3 i { color: var(--neon); }
+    .detail-block p, .detail-block li {
+      font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7;
+    }
+    .detail-block ul {
+      list-style: none; display: flex; flex-direction: column; gap: 10px;
+      margin-top: 8px;
+    }
+    .detail-block ul li {
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .detail-block ul li i {
+      color: var(--neon); margin-top: 4px; font-size: 0.7rem; flex-shrink: 0;
+    }
+    .api-tag {
+      display: inline-block; padding: 3px 10px; border-radius: 6px;
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 600;
+      margin: 2px;
+    }
+    .api-get { background: rgba(0,255,136,0.1); color: var(--neon); }
+    .api-post { background: rgba(0,212,255,0.1); color: var(--cyan); }
+    .api-put { background: rgba(168,85,247,0.1); color: var(--purple); }
+    .api-delete { background: rgba(255,107,53,0.1); color: var(--orange); }
+
+    /* ── CTA ───────────────────────────────────────── */
+    .cta-section {
+      text-align: center;
+      padding: 120px 40px;
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, rgba(0,255,136,0.06), transparent 60%);
+    }
+    .cta-section > * { position: relative; z-index: 1; }
+    .cta-title {
+      font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900;
+      margin-bottom: 16px; letter-spacing: -0.02em;
+    }
+    .cta-sub {
+      font-size: 1.1rem; color: var(--text-secondary);
+      margin-bottom: 40px; max-width: 500px; margin-left: auto; margin-right: auto;
+    }
+    .cta-buttons { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+    /* ── FOOTER ────────────────────────────────────── */
+    .footer {
+      padding: 60px 40px 30px;
+      border-top: 1px solid var(--border);
+      background: rgba(5,8,16,0.8);
+    }
+    .footer-content {
+      max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+      margin-bottom: 40px;
+    }
+    .footer-brand { max-width: 300px; }
+    .footer-brand .nav-brand { margin-bottom: 16px; }
+    .footer-brand p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; }
+    .footer-col h4 {
+      font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 16px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul li a {
+      color: var(--text-muted); text-decoration: none; font-size: 0.85rem;
+      transition: color 0.3s ease;
+    }
+    .footer-col ul li a:hover { color: var(--neon); }
+    .footer-bottom {
+      max-width: 1280px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 24px; border-top: 1px solid var(--border);
+    }
+    .footer-bottom p { font-size: 0.8rem; color: var(--text-muted); }
+    .footer-socials { display: flex; gap: 16px; }
+    .footer-socials a {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--glass); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); text-decoration: none;
+      transition: all 0.3s ease; font-size: 0.9rem;
+    }
+    .footer-socials a:hover {
+      color: var(--neon); border-color: rgba(0,255,136,0.2);
+      background: var(--neon-dim);
+    }
+
+    /* ── SCROLL ANIMATIONS ────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1; transform: translateY(0);
+    }
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── PARTICLES ─────────────────────────────────── */
+    .particle-field {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    }
+    .particle {
+      position: absolute; width: 3px; height: 3px;
+      background: var(--neon); border-radius: 50%;
+      opacity: 0; animation: particle-drift linear infinite;
+    }
+    @keyframes particle-drift {
+      0% { opacity: 0; transform: translateY(100vh) scale(0); }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-20px) scale(1); }
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .hero-content { grid-template-columns: 1fr; text-align: center; }
+      .hero-subtitle { margin-left: auto; margin-right: auto; }
+      .hero-actions { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .hero-visual { margin-top: 40px; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .demo-panel.active { grid-template-columns: 1fr; }
+      .tech-grid { grid-template-columns: repeat(2, 1fr); }
+      .arch-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .details-grid { grid-template-columns: 1fr; }
+      .footer-content { grid-template-columns: 1fr 1fr; }
+      .steps-timeline { flex-direction: column; align-items: center; gap: 32px; }
+      .steps-timeline::before { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .section { padding: 60px 20px; }
+      .navbar { padding: 12px 20px; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: block; }
+      .hero { padding: 100px 20px 60px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .tech-grid { grid-template-columns: 1fr 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .hero-phone { width: 240px; }
+      .float-card-1, .float-card-2 { display: none; }
+      .footer-content { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+      .demo-tabs { gap: 6px; }
+      .demo-tab { padding: 8px 18px; font-size: 0.8rem; }
+    }
+
+    /* ── MOBILE NAV OVERLAY ───────────────────────── */
+    .mobile-nav-overlay {
+      position: fixed; inset: 0; z-index: 99;
+      background: rgba(5,8,16,0.95);
+      backdrop-filter: blur(20px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 24px;
+      opacity: 0; visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    .mobile-nav-overlay.open { opacity: 1; visibility: visible; }
+    .mobile-nav-overlay a {
+      font-size: 1.3rem; font-weight: 600;
+      color: var(--text-primary); text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    .mobile-nav-overlay a:hover { color: var(--neon); }
+    .mobile-nav-close {
+      position: absolute; top: 20px; right: 24px;
+      background: none; border: none; color: var(--text-primary);
+      font-size: 1.5rem; cursor: pointer;
+    }
+
+    /* ── SCROLLBAR ─────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0,255,136,0.2); border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,136,0.4); }
+  </style>
+</head>
+<body>
+
+  <!-- PRELOADER -->
+  <div id="preloader">
+    <div class="preloader-logo"><i class="fa-solid fa-bolt"></i> VoltFlow</div>
+    <div class="preloader-bar"><div class="preloader-bar-fill"></div></div>
+  </div>
+
+  <!-- BACKGROUND EFFECTS -->
+  <div class="bg-grid"></div>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+  <div class="particle-field" id="particles"></div>
+
+  <!-- MOBILE NAV OVERLAY -->
+  <div class="mobile-nav-overlay" id="mobileNav">
+    <button class="mobile-nav-close" onclick="closeMobileNav()"><i class="fa-solid fa-xmark"></i></button>
+    <a href="#features" onclick="closeMobileNav()">Features</a>
+    <a href="#demo" onclick="closeMobileNav()">Demo</a>
+    <a href="#architecture" onclick="closeMobileNav()">Architecture</a>
+    <a href="#details" onclick="closeMobileNav()">Details</a>
+    <a href="/" class="nav-cta" onclick="closeMobileNav()">Launch App</a>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="#" class="nav-brand">
+      <i class="fa-solid fa-bolt"></i>
+      <span>VoltFlow</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#demo">Demo</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#details">Details</a></li>
+    </ul>
+    <a href="/" class="nav-cta"><i class="fa-solid fa-rocket"></i> Launch App</a>
+    <button class="nav-hamburger" onclick="toggleMobileNav()"><i class="fa-solid fa-bars"></i></button>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-badge"><i class="fa-solid fa-bolt"></i> Next-Gen EV Charging Platform</div>
+        <h1 class="hero-title">
+          Charge Smarter.<br>
+          <span class="gradient">Drive Further.</span>
+        </h1>
+        <p class="hero-subtitle">
+          VoltFlow connects EV drivers with charging stations across India. Find, book, and pay for charging sessions — all from one sleek platform.
+        </p>
+        <div class="hero-actions">
+          <a href="/" class="btn-hero-primary">
+            <i class="fa-solid fa-bolt"></i> Launch App
+          </a>
+          <a href="#demo" class="btn-hero-secondary">
+            <i class="fa-solid fa-play"></i> View Demo
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <h3 id="counter-stations">8+</h3>
+            <p>Charging Stations</p>
+          </div>
+          <div class="hero-stat">
+            <h3 id="counter-chargers">32+</h3>
+            <p>Charger Types</p>
+          </div>
+          <div class="hero-stat">
+            <h3 id="counter-cities">8</h3>
+            <p>Cities Covered</p>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <img src="/static/img/map_screen.png" alt="VoltFlow Map View" />
+          </div>
+          <div class="hero-floating-card float-card-1">
+            <div class="fc-row">
+              <i class="fa-solid fa-charging-station fc-icon"></i>
+              <div>
+                <div class="fc-text">Station Available</div>
+                <div class="fc-sub">6 chargers free</div>
+              </div>
+            </div>
+          </div>
+          <div class="hero-floating-card float-card-2">
+            <div class="fc-row">
+              <i class="fa-solid fa-bolt fc-icon"></i>
+              <div>
+                <div class="fc-text">Fast Charging</div>
+                <div class="fc-sub">150kW CCS</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION -->
+  <section class="section" id="features">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <div class="section-label"><i class="fa-solid fa-sparkles"></i> Features</div>
+        <h2 class="section-title">Everything You Need to Charge</h2>
+        <p class="section-subtitle">From finding the nearest station to managing payments — VoltFlow handles it all.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon green"><i class="fa-solid fa-map-location-dot"></i></div>
+          <h3>Interactive Map</h3>
+          <p>Real-time map powered by Leaflet.js showing all charging stations with live availability, ratings, and amenities.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon cyan"><i class="fa-solid fa-calendar-check"></i></div>
+          <h3>Instant Booking</h3>
+          <p>Book your charging slot in seconds. Choose your charger type, select time, and get instant confirmation.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon purple"><i class="fa-solid fa-credit-card"></i></div>
+          <h3>Secure Payments</h3>
+          <p>Multiple payment methods with secure transaction processing. View full payment history anytime.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon orange"><i class="fa-solid fa-wallet"></i></div>
+          <h3>Reward Wallet</h3>
+          <p>Earn points with every charge. Cars earn 80 pts, scooters 50 pts. Redeem for free charging sessions.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon green"><i class="fa-solid fa-gauge-high"></i></div>
+          <h3>Station Dashboard</h3>
+          <p>Station owners get a full dashboard — manage chargers, track revenue, handle bookings, and manage workers.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon cyan"><i class="fa-solid fa-car"></i></div>
+          <h3>Vehicle Management</h3>
+          <p>Register multiple vehicles, set primary vehicle, track charging history per vehicle.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP DEMO SECTION -->
+  <section class="section demo-section" id="demo">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <div class="section-label"><i class="fa-solid fa-mobile-screen-button"></i> App Demo</div>
+        <h2 class="section-title">See VoltFlow in Action</h2>
+        <p class="section-subtitle">Explore the key screens and workflows of the VoltFlow platform.</p>
+      </div>
+      <div class="demo-tabs reveal">
+        <button class="demo-tab active" onclick="switchDemo('map')">Map & Search</button>
+        <button class="demo-tab" onclick="switchDemo('booking')">Booking Flow</button>
+        <button class="demo-tab" onclick="switchDemo('dashboard')">Station Dashboard</button>
+      </div>
+      <div class="demo-content">
+        <div class="demo-panel active" id="demo-map">
+          <div class="demo-info">
+            <h3><i class="fa-solid fa-map" style="color:var(--neon);margin-right:8px"></i> Map & Discovery</h3>
+            <p>The interactive map shows all charging stations in real-time. Filter by charger type (CCS, CHAdeMO, Type 2, Tesla), search by city, and view live availability.</p>
+            <ul class="demo-features-list">
+              <li><i class="fa-solid fa-check"></i> Real-time station markers with availability</li>
+              <li><i class="fa-solid fa-check"></i> Charger type filtering</li>
+              <li><i class="fa-solid fa-check"></i> City-based search</li>
+              <li><i class="fa-solid fa-check"></i> GPS location tracking</li>
+              <li><i class="fa-solid fa-check"></i> Station details popup on click</li>
+            </ul>
+          </div>
+          <div class="demo-image-wrap">
+            <img class="demo-image" src="/static/img/map_screen.png" alt="VoltFlow Map View" />
+          </div>
+        </div>
+        <div class="demo-panel" id="demo-booking">
+          <div class="demo-info">
+            <h3><i class="fa-solid fa-bolt" style="color:var(--cyan);margin-right:8px"></i> Smart Booking</h3>
+            <p>Book a charging slot in just a few taps. Select your preferred charger type, pick a time window, and get instant pricing with real-time slot availability.</p>
+            <ul class="demo-features-list">
+              <li><i class="fa-solid fa-check"></i> Choose from CCS, CHAdeMO, Type 2, Tesla</li>
+              <li><i class="fa-solid fa-check"></i> Dynamic pricing per kWh</li>
+              <li><i class="fa-solid fa-check"></i> Flexible time slot selection</li>
+              <li><i class="fa-solid fa-check"></i> Unique booking reference codes</li>
+              <li><i class="fa-solid fa-check"></i> Cancel anytime before session starts</li>
+            </ul>
+          </div>
+          <div class="demo-image-wrap">
+            <img class="demo-image" src="/static/img/booking_screen.png" alt="VoltFlow Booking" />
+          </div>
+        </div>
+        <div class="demo-panel" id="demo-dashboard">
+          <div class="demo-info">
+            <h3><i class="fa-solid fa-chart-line" style="color:var(--purple);margin-right:8px"></i> Owner Dashboard</h3>
+            <p>Station owners get a comprehensive dashboard to manage every aspect of their charging station — from revenue tracking to worker management.</p>
+            <ul class="demo-features-list">
+              <li><i class="fa-solid fa-check"></i> Revenue analytics with daily breakdown</li>
+              <li><i class="fa-solid fa-check"></i> Booking management (accept, complete, assign)</li>
+              <li><i class="fa-solid fa-check"></i> Charger status monitoring</li>
+              <li><i class="fa-solid fa-check"></i> Worker management with shifts</li>
+              <li><i class="fa-solid fa-check"></i> Create promotional offers</li>
+            </ul>
+          </div>
+          <div class="demo-image-wrap">
+            <img class="demo-image" src="/static/img/dashboard_screen.png" alt="VoltFlow Dashboard" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how-it-works">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <div class="section-label"><i class="fa-solid fa-route"></i> How It Works</div>
+        <h2 class="section-title">Charge in 4 Simple Steps</h2>
+        <p class="section-subtitle">From discovery to charging — the whole process takes minutes.</p>
+      </div>
+      <div class="steps-timeline reveal">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <h4>Find Station</h4>
+          <p>Search by city or locate nearby stations on the interactive map</p>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <h4>Select Charger</h4>
+          <p>Choose your charger type and preferred time slot</p>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <h4>Book & Pay</h4>
+          <p>Confirm booking with secure payment and receive your reference code</p>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <h4>Charge & Earn</h4>
+          <p>Plug in, charge up, and earn wallet reward points</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE STATS -->
+  <section class="section stats-section" id="stats">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <div class="section-label"><i class="fa-solid fa-chart-bar"></i> Platform Stats</div>
+        <h2 class="section-title">Built to Scale</h2>
+        <p class="section-subtitle">VoltFlow is designed for real-world EV charging infrastructure.</p>
+      </div>
+      <div class="stats-grid reveal">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-charging-station"></i></div>
+          <div class="stat-number" data-target="8">0</div>
+          <div class="stat-label">Active Stations</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-plug-circle-bolt"></i></div>
+          <div class="stat-number" data-target="32">0</div>
+          <div class="stat-label">Charger Points</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-city"></i></div>
+          <div class="stat-number" data-target="8">0</div>
+          <div class="stat-label">Cities Covered</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-bolt"></i></div>
+          <div class="stat-number" data-target="4">0</div>
+          <div class="stat-label">Charger Types</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="section" id="architecture">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <div class="section-label"><i class="fa-solid fa-layer-group"></i> Architecture</div>
+        <h2 class="section-title">How VoltFlow Is Built</h2>
+        <p class="section-subtitle">A clean, modular architecture designed for maintainability and performance.</p>
+      </div>
+      <div class="arch-grid reveal">
+        <div class="arch-card">
+          <div class="arch-num">01</div>
+          <h3><i class="fa-solid fa-display"></i> Frontend</h3>
+          <p>A responsive SPA-like experience built with vanilla HTML, CSS, and JavaScript — no heavy frameworks needed.</p>
+          <ul>
+            <li>Modular JS architecture (Auth, Map, Stations, Booking, Wallet modules)</li>
+            <li>Leaflet.js for interactive mapping</li>
+            <li>Dark/Light theme support</li>
+            <li>Glassmorphism design system</li>
+            <li>Mobile-first responsive layout</li>
+          </ul>
+        </div>
+        <div class="arch-card">
+          <div class="arch-num">02</div>
+          <h3><i class="fa-solid fa-server"></i> Backend</h3>
+          <p>Python Flask powers the RESTful API with session-based auth and clean route organization.</p>
+          <ul>
+            <li>Flask REST API with 25+ endpoints</li>
+            <li>Session-based authentication</li>
+            <li>Role-based access control (User, Station Admin)</li>
+            <li>Auto-seeding with demo data</li>
+            <li>DB migration support</li>
+          </ul>
+        </div>
+        <div class="arch-card">
+          <div class="arch-num">03</div>
+          <h3><i class="fa-solid fa-database"></i> Database</h3>
+          <p>SQLite provides a zero-configuration, embedded database with a rich relational schema.</p>
+          <ul>
+            <li>9 tables: users, stations, chargers, bookings, payments, reviews, wallet, offers, workers</li>
+            <li>Foreign key relationships</li>
+            <li>Aggregation queries for analytics</li>
+            <li>Auto-initialization with demo data</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH STACK -->
+  <section class="section demo-section" id="tech">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <div class="section-label"><i class="fa-solid fa-code"></i> Tech Stack</div>
+        <h2 class="section-title">Technologies Used</h2>
+        <p class="section-subtitle">Modern, proven technologies for a robust charging platform.</p>
+      </div>
+      <div class="tech-grid reveal">
+        <div class="tech-card">
+          <i class="fa-brands fa-python" style="color:#3776ab"></i>
+          <h4>Python Flask</h4>
+          <p>Backend REST API</p>
+        </div>
+        <div class="tech-card">
+          <i class="fa-brands fa-js" style="color:#f7df1e"></i>
+          <h4>Vanilla JavaScript</h4>
+          <p>Frontend Logic</p>
+        </div>
+        <div class="tech-card">
+          <i class="fa-brands fa-css3-alt" style="color:#1572b6"></i>
+          <h4>CSS3</h4>
+          <p>Glassmorphism Design</p>
+        </div>
+        <div class="tech-card">
+          <i class="fa-solid fa-map" style="color:var(--neon)"></i>
+          <h4>Leaflet.js</h4>
+          <p>Interactive Maps</p>
+        </div>
+        <div class="tech-card">
+          <i class="fa-solid fa-database" style="color:var(--cyan)"></i>
+          <h4>SQLite</h4>
+          <p>Embedded Database</p>
+        </div>
+        <div class="tech-card">
+          <i class="fa-brands fa-html5" style="color:#e34f26"></i>
+          <h4>HTML5</h4>
+          <p>Semantic Structure</p>
+        </div>
+        <div class="tech-card">
+          <i class="fa-brands fa-font-awesome" style="color:var(--purple)"></i>
+          <h4>Font Awesome</h4>
+          <p>Icon Library</p>
+        </div>
+        <div class="tech-card">
+          <i class="fa-solid fa-font" style="color:var(--orange)"></i>
+          <h4>Google Fonts</h4>
+          <p>Outfit Typography</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECT DETAILS -->
+  <section class="section" id="details">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <div class="section-label"><i class="fa-solid fa-clipboard-list"></i> Project Details</div>
+        <h2 class="section-title">Under the Hood</h2>
+        <p class="section-subtitle">A deeper look at VoltFlow's capabilities and API design.</p>
+      </div>
+      <div class="details-grid reveal">
+        <div class="detail-block">
+          <h3><i class="fa-solid fa-users"></i> User Roles & Access</h3>
+          <p>VoltFlow supports two distinct user roles with separate interfaces and permissions:</p>
+          <ul>
+            <li><i class="fa-solid fa-circle"></i> <strong>EV Driver</strong> — Browse stations, book chargers, manage vehicles, earn & redeem wallet points, write reviews</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Station Owner</strong> — Manage station info, add/remove chargers, handle bookings, manage workers, track revenue, create promotional offers</li>
+          </ul>
+        </div>
+        <div class="detail-block">
+          <h3><i class="fa-solid fa-code"></i> API Endpoints</h3>
+          <p>VoltFlow exposes a comprehensive REST API with 25+ endpoints:</p>
+          <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;">
+            <span class="api-tag api-post">POST /api/login</span>
+            <span class="api-tag api-post">POST /api/register</span>
+            <span class="api-tag api-get">GET /api/stations</span>
+            <span class="api-tag api-get">GET /api/stations/:id</span>
+            <span class="api-tag api-post">POST /api/bookings</span>
+            <span class="api-tag api-post">POST /api/payments</span>
+            <span class="api-tag api-get">GET /api/wallet</span>
+            <span class="api-tag api-post">POST /api/reviews</span>
+            <span class="api-tag api-get">GET /api/profile</span>
+            <span class="api-tag api-put">PUT /api/profile</span>
+            <span class="api-tag api-get">GET /api/vehicles</span>
+            <span class="api-tag api-post">POST /api/vehicles</span>
+            <span class="api-tag api-delete">DEL /api/vehicles/:id</span>
+            <span class="api-tag api-get">GET /api/station-admin/stats</span>
+            <span class="api-tag api-post">POST /api/station-admin/chargers</span>
+            <span class="api-tag api-get">GET /api/station-admin/workers</span>
+          </div>
+        </div>
+        <div class="detail-block">
+          <h3><i class="fa-solid fa-database"></i> Data Model</h3>
+          <p>9 interconnected tables model the entire EV charging ecosystem:</p>
+          <ul>
+            <li><i class="fa-solid fa-circle"></i> <strong>Users</strong> — Profiles, roles, wallet points, vehicle preferences</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Stations</strong> — Location, amenities, ratings, operating hours, contact</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Chargers</strong> — Type, power (kW), pricing, real-time status</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Bookings</strong> — Scheduling, references, status lifecycle</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Payments</strong> — Transaction history, method tracking</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Reviews</strong> — Ratings, comments, auto-aggregation</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Wallet</strong> — Points ledger, earn/redeem tracking</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Offers</strong> — Station promotions, point costs</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Workers</strong> — Staff assignments, shifts, performance</li>
+          </ul>
+        </div>
+        <div class="detail-block">
+          <h3><i class="fa-solid fa-shield-halved"></i> Key Capabilities</h3>
+          <ul>
+            <li><i class="fa-solid fa-circle"></i> <strong>Real-time Availability</strong> — Charger status updates automatically when booked or freed</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Gamified Rewards</strong> — Vehicle-type-based point earnings (80 pts for cars, 50 pts for scooters)</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Multi-Vehicle Support</strong> — Register, manage, and switch between multiple EVs</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Station Self-Service</strong> — Owners can create stations, add chargers, and go live independently</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Worker Management</strong> — Assign bookings to workers, track performance per shift</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Dark/Light Theme</strong> — Full theme support with smooth transitions</li>
+            <li><i class="fa-solid fa-circle"></i> <strong>Demo Mode</strong> — Pre-seeded data with 8 stations across India for instant exploration</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <section class="cta-section" id="cta">
+    <h2 class="cta-title reveal">Ready to <span style="background:linear-gradient(135deg,var(--neon),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Experience VoltFlow?</span></h2>
+    <p class="cta-sub reveal">Jump into the live demo and explore the full EV charging platform.</p>
+    <div class="cta-buttons reveal">
+      <a href="/" class="btn-hero-primary">
+        <i class="fa-solid fa-bolt"></i> Launch VoltFlow App
+      </a>
+      <a href="#features" class="btn-hero-secondary">
+        <i class="fa-solid fa-arrow-up"></i> Back to Top
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="#" class="nav-brand">
+          <i class="fa-solid fa-bolt"></i>
+          <span>VoltFlow</span>
+        </a>
+        <p>A next-generation EV charging station finder and booking platform. Built with Python Flask, vanilla JavaScript, and a lot of ⚡ energy.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#demo">Demo</a></li>
+          <li><a href="#architecture">Architecture</a></li>
+          <li><a href="#tech">Tech Stack</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>User Roles</h4>
+        <ul>
+          <li><a href="#details">EV Driver</a></li>
+          <li><a href="#details">Station Owner</a></li>
+          <li><a href="#details">Worker Mgmt</a></li>
+          <li><a href="#details">API Docs</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="/">Launch App</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#stats">Stats</a></li>
+          <li><a href="#cta">Get Started</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 VoltFlow. All rights reserved. Built with <i class="fa-solid fa-heart" style="color:var(--neon)"></i></p>
+      <div class="footer-socials">
+        <a href="#" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        <a href="#" title="Twitter"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ═══════════════════════════════════════════════════
+    // VOLTFLOW PREVIEW PAGE — JAVASCRIPT
+    // ═══════════════════════════════════════════════════
+
+    // Preloader
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('preloader').classList.add('hidden');
+      }, 2000);
+    });
+
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+      const navbar = document.getElementById('navbar');
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // Mobile nav
+    function toggleMobileNav() {
+      document.getElementById('mobileNav').classList.toggle('open');
+    }
+    function closeMobileNav() {
+      document.getElementById('mobileNav').classList.remove('open');
+    }
+
+    // Demo tab switching
+    function switchDemo(tab) {
+      // Update tabs
+      document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Update panels
+      document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('demo-' + tab).classList.add('active');
+    }
+
+    // Scroll reveal
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // Counter animation
+    function animateCounters() {
+      document.querySelectorAll('.stat-number[data-target]').forEach(el => {
+        const target = parseInt(el.dataset.target);
+        let current = 0;
+        const increment = target / 40;
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+          el.textContent = Math.round(current) + '+';
+        }, 40);
+      });
+    }
+
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounters();
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    const statsSection = document.getElementById('stats');
+    if (statsSection) statsObserver.observe(statsSection);
+
+    // Particle generation
+    function createParticles() {
+      const field = document.getElementById('particles');
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDuration = (8 + Math.random() * 12) + 's';
+        particle.style.animationDelay = Math.random() * 10 + 's';
+        particle.style.width = (2 + Math.random() * 3) + 'px';
+        particle.style.height = particle.style.width;
+        if (Math.random() > 0.5) {
+          particle.style.background = 'var(--cyan)';
+        }
+        field.appendChild(particle);
+      }
+    }
+    createParticles();
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Phone tilt on mouse move (hero section)
+    const heroSection = document.getElementById('hero');
+    const heroPhone = document.querySelector('.hero-phone');
+    if (heroSection && heroPhone) {
+      heroSection.addEventListener('mousemove', (e) => {
+        const rect = heroSection.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        heroPhone.style.transform = `perspective(1000px) rotateY(${x * -15}deg) rotateX(${y * 10}deg)`;
+      });
+      heroSection.addEventListener('mouseleave', () => {
+        heroPhone.style.transform = 'perspective(1000px) rotateY(-8deg) rotateX(4deg)';
+      });
+    }
+  </script>
+</body>
+</html>

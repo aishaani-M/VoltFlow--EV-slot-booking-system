@@ -1,0 +1,157 @@
+/* ══════════════════════════════════════════════════
+   EV CHARGE HUB – animations.css
+   ══════════════════════════════════════════════════ */
+
+/* ── KEYFRAMES ── */
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes popIn {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+@keyframes floatParticle {
+  0%, 100% { transform: translateY(0) scale(1); opacity: .5; }
+  50%       { transform: translateY(-30px) scale(1.05); opacity: .8; }
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(57,255,106,.3); }
+  50%       { box-shadow: 0 0 24px rgba(57,255,106,.7); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes markerPop {
+  0%   { transform: rotate(-45deg) scale(0); opacity: 0; }
+  60%  { transform: rotate(-45deg) scale(1.15); }
+  100% { transform: rotate(-45deg) scale(1); opacity: 1; }
+}
+@keyframes scanLine {
+  0%   { top: 0; }
+  100% { top: 100%; }
+}
+@keyframes neonFlicker {
+  0%, 100% { opacity: 1; }
+  92%       { opacity: 1; }
+  93%       { opacity: .3; }
+  94%       { opacity: 1; }
+  96%       { opacity: .5; }
+  97%       { opacity: 1; }
+}
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── UTILITY ANIMATION CLASSES ── */
+.anim-fade-in  { animation: fadeIn .4s ease forwards; }
+.anim-slide-up { animation: slideUp .4s cubic-bezier(0.4,0,0.2,1) forwards; }
+.anim-pop-in   { animation: popIn .35s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.anim-glow     { animation: glowPulse 2s ease-in-out infinite; }
+
+/* ── STAGGERED CHILDREN ── */
+.stagger-children > * { opacity: 0; animation: slideUp .4s cubic-bezier(0.4,0,0.2,1) forwards; }
+.stagger-children > *:nth-child(1) { animation-delay: 0s; }
+.stagger-children > *:nth-child(2) { animation-delay: .06s; }
+.stagger-children > *:nth-child(3) { animation-delay: .12s; }
+.stagger-children > *:nth-child(4) { animation-delay: .18s; }
+.stagger-children > *:nth-child(5) { animation-delay: .24s; }
+.stagger-children > *:nth-child(6) { animation-delay: .30s; }
+.stagger-children > *:nth-child(7) { animation-delay: .36s; }
+.stagger-children > *:nth-child(8) { animation-delay: .42s; }
+
+/* ── NEON BRAND FLICKER ── */
+.brand-bolt { animation: neonFlicker 6s infinite; }
+
+/* ── GRADIENT ANIMATED BG ── */
+.gradient-bg {
+  background: linear-gradient(135deg, var(--bg-800), var(--bg-700), var(--bg-800));
+  background-size: 300% 300%;
+  animation: gradientShift 8s ease infinite;
+}
+
+/* ── LOADING SPINNER ── */
+.spinner {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  animation: spin .7s linear infinite;
+  display: inline-block;
+}
+
+/* ── MAP MARKER ANIMATION ── */
+.leaflet-marker-icon { animation: markerPop .4s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+/* ── HOVER LIFT ── */
+.hover-lift { transition: transform var(--transition), box-shadow var(--transition); }
+.hover-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.3); }
+
+/* ── BUTTON PRESS ── */
+.btn-primary:active, .btn-secondary:active { transform: scale(.97); }
+
+/* ── NOTIFICATION BADGE ── */
+.notification-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--red); position: absolute;
+  top: 4px; right: 4px;
+  animation: glowPulse 1.5s infinite;
+}
+
+/* ── AVAILABILITY PULSE ── */
+.avail-pulse {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--neon);
+  display: inline-block; margin-right: 6px;
+  animation: glowPulse 1.8s ease-in-out infinite;
+}
+
+/* ── SCAN LINE (for detail hero) ── */
+.scan-wrap {
+  position: relative; overflow: hidden;
+}
+.scan-wrap::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-dim), transparent);
+  animation: scanLine 3s linear infinite;
+  pointer-events: none;
+}
+
+/* ── PAGE TRANSITION ── */
+.page { animation: none; }
+.page.active { animation: fadeIn .3s ease; }
+
+/* ── TOAST EXIT ── */
+.toast.removing {
+  animation: slideLeft .3s cubic-bezier(0.4,0,0.2,1) reverse;
+  opacity: 0;
+}
+
+/* ── NEON BORDER GLOW ON HOVER ── */
+.neon-hover {
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.neon-hover:hover {
+  border-color: var(--neon-dim) !important;
+  box-shadow: 0 0 16px rgba(57,255,106,.15) !important;
+}
+
+/* ── CARD SHIMMER EFFECT ── */
+.shimmer-card {
+  position: relative; overflow: hidden;
+}
+.shimmer-card::after {
+  content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.03), transparent);
+  transform: skewX(-20deg);
+  transition: left .6s ease;
+}
+.shimmer-card:hover::after { left: 150%; }

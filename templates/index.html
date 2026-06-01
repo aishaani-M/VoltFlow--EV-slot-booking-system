@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Volt Flow – Find &amp; Book EV Charging Stations</title>
+  <meta name="description"
+    content="Locate nearby EV charging stations, check real-time availability and book slots instantly." />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}" />
+</head>
+
+<body>
+  <div id="loading-screen">
+    <div class="loader-content">
+      <div class="loader-bolt"><i class="fa-solid fa-bolt"></i></div>
+      <div class="loader-text">Volt Flow</div>
+      <div class="loader-bar">
+        <div class="loader-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="auth-overlay" class="hidden">
+    <div class="auth-bg-animation">
+      <div class="auth-particle" style="--i:1"></div>
+      <div class="auth-particle" style="--i:2"></div>
+      <div class="auth-particle" style="--i:3"></div>
+      <div class="auth-particle" style="--i:4"></div>
+      <div class="auth-particle" style="--i:5"></div>
+    </div>
+    <div class="auth-container">
+      <div class="auth-left">
+        <div class="auth-brand"><span class="brand-bolt"><i class="fa-solid fa-bolt"></i></span><span
+            class="brand-name">Volt Flow</span></div>
+        <h1 class="auth-hero-title">Book. Charge.<br /><span class="gradient-text">GO....</span></h1>
+        <p class="auth-hero-sub">Find, book, and charge</p>
+       
+
+      </div>
+      <div class="auth-right">
+        <div id="login-form" class="auth-card">
+          <h2>Welcome Back</h2>
+          <p class="auth-sub">Sign in to continue</p>
+          <div id="login-error" class="auth-error hidden"></div>
+          <div class="form-group"><label><i class="fa-solid fa-envelope"></i> Email</label><input type="email"
+              id="login-email" placeholder="you@example.com" autocomplete="email" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-lock"></i> Password</label><input type="password"
+              id="login-password" placeholder="••••••••" autocomplete="current-password" /></div>
+          <button id="btn-login" class="btn-primary btn-full" onclick="Auth.login()"><i
+              class="fa-solid fa-arrow-right-to-bracket"></i> Sign In</button>
+          <button class="btn-demo btn-full" onclick="Auth.demoLogin()"><i class="fa-solid fa-play"></i> Try
+            Demo</button>
+          <p class="auth-switch">Don't have an account? <span onclick="Auth.showRegister()">Register</span></p>
+        </div>
+        <div id="register-form" class="auth-card hidden">
+          <h2>Create Account</h2>
+          <p class="auth-sub">Join Volt Flow today</p>
+          <div id="register-error" class="auth-error hidden"></div>
+          <div class="reg-type-tabs">
+            <button class="reg-tab active" id="tab-user" onclick="Auth.switchRegTab('user')"><i
+                class="fa-solid fa-user"></i> EV User</button>
+            <button class="reg-tab" id="tab-station" onclick="Auth.switchRegTab('station')"><i
+                class="fa-solid fa-charging-station"></i> Station Owner</button>
+          </div>
+          <div id="reg-user-fields">
+            <div class="form-row">
+              <div class="form-group"><label><i class="fa-solid fa-user"></i> Name</label><input type="text"
+                  id="reg-name" placeholder="John Doe" /></div>
+              <div class="form-group"><label><i class="fa-solid fa-phone"></i> Phone</label><input type="tel"
+                  id="reg-phone" placeholder="9876543210" /></div>
+            </div>
+            <div class="form-group"><label><i class="fa-solid fa-envelope"></i> Email</label><input type="email"
+                id="reg-email" placeholder="you@example.com" /></div>
+            <div class="form-group"><label><i class="fa-solid fa-lock"></i> Password</label><input type="password"
+                id="reg-password" placeholder="Create password" /></div>
+            <div class="form-group"><label><i class="fa-solid fa-motorcycle"></i> Vehicle Type</label>
+              <select id="reg-vehicle-type">
+                <option value="car">Car</option>
+                <option value="scooter">Scooter / 2-Wheeler</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label><i class="fa-solid fa-car"></i> Vehicle Model</label><input type="text"
+                  id="reg-vehicle" placeholder="Tata Nexon EV" /></div>
+              <div class="form-group"><label><i class="fa-solid fa-id-card"></i> Number</label><input type="text"
+                  id="reg-vehicle-num" placeholder="DL-01-AB-1234" /></div>
+            </div>
+          </div>
+          <div id="reg-station-fields" class="hidden">
+            <div class="form-row">
+              <div class="form-group"><label><i class="fa-solid fa-user"></i> Your Name</label><input type="text"
+                  id="reg-s-name" placeholder="Station Owner" /></div>
+              <div class="form-group"><label><i class="fa-solid fa-phone"></i> Phone</label><input type="tel"
+                  id="reg-s-phone" placeholder="9876543210" /></div>
+            </div>
+            <div class="form-group"><label><i class="fa-solid fa-envelope"></i> Email</label><input type="email"
+                id="reg-s-email" placeholder="owner@station.com" /></div>
+            <div class="form-group"><label><i class="fa-solid fa-lock"></i> Password</label><input type="password"
+                id="reg-s-password" placeholder="Create password" /></div>
+            <div class="form-group"><label><i class="fa-solid fa-charging-station"></i> Station Name</label><input
+                type="text" id="reg-station-name" placeholder="My EV Station" /></div>
+            <div class="form-group"><label><i class="fa-solid fa-map-pin"></i> Station Address</label><input type="text"
+                id="reg-station-addr" placeholder="123 Main St" /></div>
+            <div class="form-row">
+              <div class="form-group"><label><i class="fa-solid fa-city"></i> City</label><input type="text"
+                  id="reg-station-city" placeholder="New Delhi" /></div>
+            </div>
+          </div>
+          <button class="btn-primary btn-full" onclick="Auth.register()"><i class="fa-solid fa-user-plus"></i> Create
+            Account</button>
+          <p class="auth-switch">Already have an account? <span onclick="Auth.showLogin()">Sign In</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="main-app" class="hidden">
+    <nav id="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-bolt"><i class="fa-solid fa-bolt"></i></span>
+        <span class="brand-name">Volt Flow</span>
+        <button class="theme-btn" onclick="App.toggleTheme()" title="Toggle theme"><i class="fa-solid fa-sun"
+            id="theme-icon"></i></button>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="user-only-nav"><a href="#" class="nav-item active" data-page="map" onclick="App.navigate('map')"><i
+              class="fa-solid fa-map-location-dot"></i><span>Map</span></a></li>
+        <li><a href="#" class="nav-item" data-page="stations" onclick="App.navigate('stations')"><i
+              class="fa-solid fa-charging-station"></i><span>Stations</span></a></li>
+        <li class="user-only-nav"><a href="#" class="nav-item" data-page="bookings" onclick="App.navigate('bookings')"><i
+              class="fa-solid fa-calendar-check"></i><span>Bookings</span></a></li>
+        <li class="user-only-nav"><a href="#" class="nav-item" data-page="wallet" onclick="App.navigate('wallet')"><i
+              class="fa-solid fa-wallet"></i><span>Wallet</span></a></li>
+        <li><a href="#" class="nav-item" data-page="profile" onclick="App.navigate('profile')"><i
+              class="fa-solid fa-user-circle"></i><span>Profile</span></a></li>
+        <li id="station-admin-nav" class="hidden"><a href="#" class="nav-item" data-page="station-admin"
+            onclick="App.navigate('station-admin')"><i class="fa-solid fa-gauge-high"></i><span>Station Dashboard</span></a></li>
+      </ul>
+      <div class="sidebar-bottom">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebar-avatar">?</div>
+          <div class="user-info"><span id="sidebar-name">Loading…</span><span id="sidebar-role"
+              class="user-role">User</span></div>
+        </div>
+        <button class="btn-logout" onclick="Auth.logout()"><i class="fa-solid fa-right-from-bracket"></i>
+          Logout</button>
+      </div>
+    </nav>
+    <header id="mobile-header">
+      <div class="mobile-brand"><i class="fa-solid fa-bolt"></i> Volt Flow</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="theme-btn-mobile" onclick="App.toggleTheme()"><i class="fa-solid fa-sun"
+            id="theme-icon-mobile"></i></button>
+        <div id="mobile-user-avatar" class="user-avatar-sm"></div>
+      </div>
+    </header>
+    <main id="page-content">
+      <div id="page-map" class="page active">
+        <div class="map-search-bar">
+          <div class="search-input-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="map-search"
+              placeholder="Search city or station…" oninput="MapView.search(this.value)" /></div>
+          <div class="map-filters">
+            <select id="filter-type" onchange="MapView.applyFilter()">
+              <option value="">All Chargers</option>
+              <option value="CCS">CCS</option>
+              <option value="CHAdeMO">CHAdeMO</option>
+              <option value="Type 2">Type 2</option>
+              <option value="Tesla">Tesla</option>
+            </select>
+            <button class="btn-locate" onclick="MapView.locateUser()" title="My Location"><i
+                class="fa-solid fa-location-crosshairs"></i></button>
+          </div>
+        </div>
+        <div id="leaflet-map"></div>
+      </div>
+      <div id="page-stations" class="page">
+        <div class="page-header">
+          <h1>Charging Stations</h1>
+          <p>Find the perfect charging point near you</p>
+        </div>
+        <div class="stations-filter-bar">
+          <input type="text" id="station-search" placeholder="Search stations…" oninput="Stations.search(this.value)" />
+          <select id="station-city-filter" onchange="Stations.filterCity(this.value)">
+            <option value="">All Cities</option>
+            <option value="New Delhi">Delhi</option>
+            <option value="Mumbai">Mumbai</option>
+            <option value="Bengaluru">Bengaluru</option>
+            <option value="Chennai">Chennai</option>
+            <option value="Hyderabad">Hyderabad</option>
+            <option value="Pune">Pune</option>
+          </select>
+          <select id="station-type-filter" onchange="Stations.filterType(this.value)">
+            <option value="">All Types</option>
+            <option value="CCS">CCS</option>
+            <option value="CHAdeMO">CHAdeMO</option>
+            <option value="Type 2">Type 2</option>
+            <option value="Tesla">Tesla</option>
+          </select>
+        </div>
+        <div id="stations-grid" class="stations-grid"></div>
+      </div>
+      <div id="page-station-detail" class="page"><button class="btn-back" onclick="App.navigate('stations')"><i
+            class="fa-solid fa-arrow-left"></i> Back</button>
+        <div id="station-detail-content"></div>
+      </div>
+      <div id="page-bookings" class="page">
+        <div class="page-header">
+          <h1>My Bookings</h1>
+          <p>Manage your charging sessions</p>
+        </div>
+        <div class="booking-tabs"><button class="tab-btn active"
+            onclick="Bookings.filterStatus('all',this)">All</button><button class="tab-btn"
+            onclick="Bookings.filterStatus('upcoming',this)">Upcoming</button><button class="tab-btn"
+            onclick="Bookings.filterStatus('completed',this)">Completed</button><button class="tab-btn"
+            onclick="Bookings.filterStatus('cancelled',this)">Cancelled</button></div>
+        <div id="bookings-list" class="bookings-list"></div>
+      </div>
+      <div id="page-profile" class="page">
+        <div class="page-header">
+          <h1>My Profile</h1>
+          <p>Manage your account</p>
+        </div>
+        <div id="profile-content"></div>
+      </div>
+      <div id="page-wallet" class="page">
+        <div class="page-header">
+          <h1><i class="fa-solid fa-wallet" style="color:var(--neon);margin-right:8px"></i>Reward Wallet</h1>
+          <p>Earn points with every charge, redeem for free sessions</p>
+        </div>
+        <div id="wallet-content"></div>
+      </div>
+      <div id="page-station-admin" class="page">
+        <div class="page-header">
+          <h1>Station Dashboard</h1>
+          <p>Manage your station, view revenue and handle bookings</p>
+        </div>
+        <div id="station-admin-content"></div>
+      </div>
+    </main>
+    <nav id="bottom-nav">
+      <button class="bottom-nav-btn user-only-nav active" data-page="map" onclick="App.navigate('map')"><i
+          class="fa-solid fa-map-location-dot"></i><span>Map</span></button>
+      <button class="bottom-nav-btn" data-page="stations" onclick="App.navigate('stations')"><i
+          class="fa-solid fa-charging-station"></i><span>Stations</span></button>
+      <button class="bottom-nav-btn user-only-nav" data-page="bookings" onclick="App.navigate('bookings')"><i
+          class="fa-solid fa-calendar-check"></i><span>Bookings</span></button>
+      <button class="bottom-nav-btn user-only-nav" data-page="wallet" onclick="App.navigate('wallet')"><i
+          class="fa-solid fa-wallet"></i><span>Wallet</span></button>
+      <button class="bottom-nav-btn" data-page="profile" onclick="App.navigate('profile')"><i
+          class="fa-solid fa-user-circle"></i><span>Profile</span></button>
+    </nav>
+  </div>
+
+  <div id="booking-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-bolt"></i> Book Charging Slot</h2><button class="modal-close"
+          onclick="Booking.close()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="booking-modal-content"></div>
+    </div>
+  </div>
+  <div id="payment-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-credit-card"></i> Secure Payment</h2><button class="modal-close"
+          onclick="Payment.close()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="payment-modal-content"></div>
+    </div>
+  </div>
+  <div id="toast-container"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/stations.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/booking.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bookings.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/payment.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/wallet.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/station-admin.js') }}"></script>
+</body>
+
+</html>
